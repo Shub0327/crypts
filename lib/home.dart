@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
+
 import 'package:crypts/coindesign.dart';
 import 'package:crypts/coinmodel.dart';
 import 'package:crypts/currencies.dart';
@@ -15,52 +16,57 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Future <List<Coinmodel>> fetchcoin() async {
-    print("1");
+
+  Future<List<Coinmodel>> fetchCoin() async {
     coinList = [];
-    String apiUrl = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false';
-    final res = await http.get(Uri.parse(apiUrl));
-    try {
-      if (res.statusCode == 200) {
-        print("200");
-        List<dynamic> response = [];
-        response = jsonDecode(res.body);
-        if (response.isNotEmpty) {
-          print("not empty");
-          for (
-          int i = 0; i < response.length; i++
-          ) {
-            if (response[i] != null) {
-
-              // print(response[i]);
-              Map<String, dynamic> map = response[i];
-              coinList.add(Coinmodel.fromJson(map));
-            }
+    final response = await http.get(Uri.parse(
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'));
+    if (response.statusCode == 200) {
+      List<dynamic> values = [];
+      values = json.decode(response.body);
+      if (values.isNotEmpty) {
+        for (int i = 0; i < values.length; i++) {
+          if (values[i] != null) {
+            Map<String, dynamic> map = values[i];
+            coinList.add(Coinmodel.fromJson(map));
           }
-          setState(() {
-            coinList;
-          });
         }
-
+        setState(() {
+          coinList;
+        });
       }
+      return coinList;
     }
-    catch(e)
-    {
-    print(e);
-    }
-    return coinList;
 
+    else {
+      throw Exception('Failed to load coins');
+    }
   }
+
+
   @override
   void initState() {
-    fetchcoin();
-    // Timer.periodic(const Duration(seconds: 10), (timer) => fetchcoin());
+
+    Timer.periodic(const Duration(seconds: 10), (timer) => fetchCoin());
     super.initState();
   }
 
 
   @override
   Widget build(BuildContext context) {
+    AppBar(
+      leading: Icon(Icons.menu),
+      title: Text('Page title'),
+      actions: [
+        Icon(Icons.favorite),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
+          child: Icon(Icons.search),
+        ),
+        Icon(Icons.more_vert),
+      ],
+      backgroundColor: Colors.purple,
+    );
     return Scaffold(
       body: Container(
         color: Colors.white24,
@@ -90,28 +96,6 @@ class _HomeState extends State<Home> {
           ],
         ),
       ),
-
-
-      // Container(
-      //   height: double.infinity,
-      //   child: ListView.builder(
-      //       scrollDirection: Axis.vertical,
-      //       itemCount: coinList.length,
-      //       itemBuilder: (context, index) {
-      //     return SingleChildScrollView(
-      //         child:
-      //         CoinDesign(
-      //             symbol:coinList[index].symbol,
-      //             name: coinList[index].name,
-      //             image: coinList[index].image,
-      //             currentPrice: coinList[index].currentPrice,
-      //             priceChangePercentage24H: coinList[index].priceChangePercentage24H
-      //         )
-      //     );
-      //
-      //
-      //   }),
-      // ),
     );
   }
 

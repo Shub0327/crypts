@@ -1,10 +1,25 @@
+import 'package:crypts/authentication_repo.dart';
 import 'package:crypts/currencies.dart';
 import 'package:crypts/home.dart';
+import 'package:crypts/signup.dart';
+import 'package:crypts/welcome.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
 
+import 'firebase_options.dart';
+
+// void main() async {
+//   await Firebase.initializeApp(
+//     options: DefaultFirebaseOptions.currentPlatform,
+//   );
+//   runApp(const MyApp());
+//   // currency();
+// }
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+  Firebase.initializeApp(options:DefaultFirebaseOptions.currentPlatform).then((value) => Get.put(AuthenticationRepo()));
   runApp(const MyApp());
-  // currency();
 }
 
 class MyApp extends StatelessWidget {
@@ -12,13 +27,13 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
       ),
-      home:  Home(),
+      home:  Welcome(),
     );
   }
 }
