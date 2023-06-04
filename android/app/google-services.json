@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1015715869783",
+    "project_id": "crypts-cc506",
+    "storage_bucket": "crypts-cc506.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1015715869783:android:2729f49fc7b5144d679f12",
+        "android_client_info": {
+          "package_name": "com.example.crypts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1015715869783-0623qruo4c7rluvgjvpfnvtflv1libu1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAzMNrZT7OjK2mNmwuZO4EjvjVIX_gkySg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1015715869783-0623qruo4c7rluvgjvpfnvtflv1libu1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
