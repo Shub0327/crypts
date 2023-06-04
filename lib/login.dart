@@ -1,17 +1,17 @@
-import 'package:crypts/login.dart';
+import 'package:crypts/signup.dart';
 import 'package:crypts/signupController.dart';
 import 'package:crypts/home.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class Signup extends StatefulWidget {
-  const Signup({Key? key}) : super(key: key);
+class Login extends StatefulWidget {
+  const Login({Key? key}) : super(key: key);
 
   @override
-  State<Signup> createState() => _SignupState();
+  State<Login> createState() => _LoginState();
 }
 
-class _SignupState extends State<Signup> {
+class _LoginState extends State<Login> {
   final controller = Get.put(SignupController());
 
   final _formkey = GlobalKey<FormState>();
@@ -19,10 +19,10 @@ class _SignupState extends State<Signup> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-
       resizeToAvoidBottomInset : false,
       body: Container(
-        decoration: BoxDecoration(
+        decoration:
+        BoxDecoration(
           image: DecorationImage(image: AssetImage('assets/register.png'), fit: BoxFit.fill),
         ),
         padding: EdgeInsets.all(30),
@@ -33,7 +33,7 @@ class _SignupState extends State<Signup> {
               Container(
                 padding: EdgeInsets.only(left: 35, top:60),
                 child: Text(
-                  'Create\nAccount',
+                  'Login Existing\nAccount',
                   style: TextStyle(color: Colors.white, fontSize: 33,fontWeight: FontWeight.bold),
                 ),
               ),
@@ -43,11 +43,7 @@ class _SignupState extends State<Signup> {
                   style: TextStyle(color:Colors.white),
                   controller: controller.email,
                   decoration: const InputDecoration(
-                      icon: Icon(Icons.mail,color: Colors.white,),
-                      hintText: 'Enter the mail address', labelText: 'Email'
-                      ,hintStyle: TextStyle(color: Colors.white),labelStyle:
-                  TextStyle(color: Colors.white)
-                  ),
+                      icon: Icon(Icons.mail,color: Colors.white,), hintText: 'Enter the mail address', labelText: 'Email',hintStyle: TextStyle(color: Colors.white),labelStyle:  TextStyle(color: Colors.white) ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'invaild';
@@ -84,7 +80,7 @@ class _SignupState extends State<Signup> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   Text(
-                    'Sign Up',
+                    'Sign In',
                     style: TextStyle(
                         color: Colors.white,
                         fontSize: 27,
@@ -98,7 +94,7 @@ class _SignupState extends State<Signup> {
                         onPressed: () {if (_formkey.currentState!.validate()) {
                           print('success');
                           SignupController.instance
-                              .registerUser(controller.email.text.trim(), controller.password.text.trim());
+                              .loginUser(controller.email.text.trim(), controller.password.text.trim());
                           // Get.to(Home());
                         }},
                         icon: Icon(
@@ -107,9 +103,8 @@ class _SignupState extends State<Signup> {
                   )
                 ],
               ),
-              SizedBox(height: 30,),
-              Container(child: TextButton(onPressed: () { Get.to(Login()); },
-                  child: Text("Login into existing account",style: TextStyle(color: Colors.white,fontSize: 12.0),)),)
+              Container(child: TextButton(onPressed: () { Get.to(Signup()); },
+              child: Text("Create new account",style: TextStyle(color: Colors.white,fontSize: 12.0),)),),SizedBox(height: 30,)
             ],
           ),
         ),

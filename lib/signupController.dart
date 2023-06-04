@@ -12,4 +12,8 @@ class SignupController extends GetxController{
     AuthenticationRepo.instance.createUserWithEmailPassword(email, password);
 
   }
+  void loginUser(String email,String password){
+    AuthenticationRepo.instance.loginWithEmailPassword(email, password);
+
+  }
 }

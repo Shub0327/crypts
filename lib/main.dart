@@ -1,6 +1,7 @@
 import 'package:crypts/authentication_repo.dart';
 import 'package:crypts/currencies.dart';
 import 'package:crypts/home.dart';
+import 'package:crypts/logout.dart';
 import 'package:crypts/signup.dart';
 import 'package:crypts/welcome.dart';
 import 'package:flutter/material.dart';
@@ -28,12 +29,18 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Flutter Demo',
       theme: ThemeData(
 
         primarySwatch: Colors.blue,
       ),
-      home:  Welcome(),
+      home:  Home(),
+      initialRoute: '/',
+      getPages: [
+        GetPage(name: '/', page: () => Home()),
+        GetPage(name: '/logout', page: () => Logout()),
+      ],
     );
   }
 }
