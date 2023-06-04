@@ -1,16 +1,8 @@
 # crypts
 
-A Basic Crypto Currency app with realtime price of coins
+A Basic Crypto Currency app with realtime price of coins with firebasa authentication
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+https://github.com/Shub0327/crypts/assets/52122949/641731c9-5b43-4ea4-bdea-5f2c97618ed0
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
