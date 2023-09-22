@@ -1,7 +1,16 @@
 // To parse this JSON data, do
 //
 //     final coinmodel = coinmodelFromJson(jsonString);
+import 'dart:convert';
 
+
+List<Coinmodel> CoinmodelFromJson(String str)=>
+    List<Coinmodel>.from(json.decode(str).map((x)=>Coinmodel.fromJson(x)));
+
+// Coinmodel CoinmodelFromJson(String str) => Coinmodel.fromJson(json.decode(str));
+
+
+String coinmodelToJson(Coinmodel data) => json.encode(data.toJson());
 
 
 class Coinmodel {
@@ -29,6 +38,15 @@ class Coinmodel {
     currentPrice: json["current_price"].toDouble() ,
     priceChangePercentage24H: json["price_change_percentage_24h"].toDouble() ,
   );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "symbol": symbol,
+    "name": name,
+    "image": image,
+    "current_price": currentPrice,
+    "price_change_percentage_24h": priceChangePercentage24H,
+  };
 
 }
  List<Coinmodel> coinList=[];

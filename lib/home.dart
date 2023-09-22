@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:crypts/authentication_repo.dart';
+import 'package:crypts/coinController.dart';
 import 'package:crypts/drawer_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypts/coindesign.dart';
 import 'package:crypts/coinmodel.dart';
-import 'package:crypts/currencies.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -16,193 +17,101 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  bool _loading = false;
-  Future<List<Coinmodel>> fetchCoin() async {
-    coinList = [];
-    final response = await http.get(Uri.parse(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'));
-    if (response.statusCode == 200) {
-      List<dynamic> values = [];
-      values = json.decode(response.body);
-      if (values.isNotEmpty) {
-        for (int i = 0; i < values.length; i++) {
-          if (values[i] != null) {
-            Map<String, dynamic> map = values[i];
-            coinList.add(Coinmodel.fromJson(map));
-          }
-        }
-        setState(() {
-          _loading = false;
-          coinList;
-        });
-      }
-      return coinList;
-    }
 
-    else {
-      throw Exception('Failed to load coins');
-    }
-  }
+final CoinController controller=Get.put(CoinController());
+
+  RxBool loading=true.obs;
+  RxBool search=false.obs;
+  TextEditingController editingController=new TextEditingController();
 
 
-  @override
-  void initState() {
-    fetchCoin();
-    setState(() {
-          _loading = true;
-        });
-
-    Timer.periodic(const Duration(seconds: 10), (timer) => fetchCoin());
-    super.initState();
-  }
-
-  // Future<List<Coinmodel>> fetchCoin() async {
-  //   coinList = [];
-  //   final response = await http.get(Uri.parse(
-  //       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'));
-  //   if (response.statusCode == 200) {
-  //     try {
-  //       final values = (json.decode(response.body) as List).cast<Map<String, dynamic>>();
-  //       // List<dynamic> values = [];
-  //       // values = json.decode(response.body);
-  //       if (values.isNotEmpty) {
-  //         for (int i = 0; i < values.length; i++) {
-  //           if (values[i] != null) {
-  //             Map<String, dynamic> map = values[i];
-  //             coinList.add(Coinmodel.fromJson(map));
-  //           }
-  //         }
-  //         setState(() {
-  //           _loading = false;
-  //           coinList;
-  //         });
-  //       }
-  //
-  //
-  //     }
-  //
-  //     catch(e){
-  //       print(e);
-  //     }
-  //
-  //   }
-  //   return coinList;
-  //
-  //   // else {
-  //   //   throw Exception('Failed to load coins');
-  //   // }
-  // }
-  // Future<List<Coinmodel>> fetchCoin() async {
-  //   print("in fetchcoin");
-  //   coinList = [];
-  //   final response = await http.get(Uri.parse(
-  //       'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'));
-  //   try {
-  //
-  //     print("in try block");
-  //     // if (response.statusCode == 200) {
-  //       print("2");
-  //
-  //       List<dynamic> values = [];
-  //       values = json.decode(response.body);
-  //       if (values.isNotEmpty) {
-  //         for (int i = 0; i < values.length; i++) {
-  //           if (values[i] != null) {
-  //             Map<String, dynamic> map = values[i];
-  //             coinList.add(Coinmodel.fromJson(map));
-  //           }
-  //         }
-  //         setState(() {
-  //           print('Sucess');
-  //           _loading = false;
-  //           coinList;
-  //         });
-  //       }
-  //
-  //
-  //     // }
-  //
-  //   }
-  //
-  //   catch(e){print(e);}
-  //   // else {
-  //   //   throw Exception('Failed to load coins');
-  //   // }
-  //   return coinList;
-  // }
-
-  // @override
-  // void initState() {
-  //   fetchCoin();
-  //   setState(() {
-  //     _loading = true;
-  //   });
-  //   Timer.periodic(const Duration(seconds: 10), (timer) => fetchCoin());
-  //   super.initState();
-  // }
 
   @override
   Widget build(BuildContext context) {
-    AppBar(
-      leading: Icon(Icons.menu),
-      title: Text('Page title'),
-      actions: [
-        Icon(Icons.favorite),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Icon(Icons.search),
-        ),
-        Icon(Icons.more_vert),
-      ],
-      backgroundColor: Colors.purple,
-    );
+
     return Scaffold(
+      appBar:
+        AppBar(
+          leading: Icon(Icons.menu),
+          title: Text('Crypts'),
+          actions: [
+            Icon(Icons.favorite),
+            IconButton(
+              iconSize: 30,
+              icon: const Icon(Icons.search),
+              onPressed: () {
+                setState(() {
+                  search.value = !search.value; // Toggle the search value
+                  if (!search.value) {
+                    // Clear the search query and restore the original coin list
+                    editingController.clear();
+                    // controller.resetCoins();
+                  }
+                });
+              },
+            ),
+            Icon(Icons.more_vert),
+          ],
+          backgroundColor: Colors.purple,
+        ),
       drawer: DrawerWidget(),
       body: Stack(
         children: <Widget>[
 
-          Center(
-            child: !_loading
-                ? Opacity(
-                    opacity: 0,
-                    child: ModalBarrier(dismissible: false, color: Colors.black),
-                  )
-                : Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      CircularProgressIndicator(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Text(
-                        "Please wait until coins are getting loaded",
-                        style: TextStyle(color: Colors.black),
-                      )
-                    ],
-                  ),
-          ),
+
           Container(
             color: Colors.white24,
             width: MediaQuery.of(context).size.width,
             height: MediaQuery.of(context).size.height,
             child: Column(
               children: [
-                SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    child: ListView.builder(
-                      scrollDirection: Axis.vertical,
-                      itemCount: coinList.length,
-                      itemBuilder: (context, index) {
-                        return SingleChildScrollView(
-                            child: CoinDesign(
-                                symbol: coinList[index].symbol,
-                                name: coinList[index].name,
-                                image: coinList[index].image,
-                                currentPrice: coinList[index].currentPrice,
-                                priceChangePercentage24H: coinList[index].priceChangePercentage24H));
-                      },
-                    )),
+                if (search.value)
+              Padding(
+              padding: const EdgeInsets.fromLTRB(10, 15, 10, 10),
+          child: TextField(
+            controller: editingController,
+            onChanged: (query) {
+              controller.searchCoins(query); // Call the search function
+            },
+              ),
+              ),
+
+
+                Expanded(
+                  child: SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Obx(()=>
+
+                         controller.loading.value?Column(
+                           mainAxisAlignment: MainAxisAlignment.center,
+                           children: [
+                             CircularProgressIndicator(),
+                             SizedBox(
+                               height: 20,
+                             ),
+                             Text(
+                               "Please wait until coins are getting loaded",
+                               style: TextStyle(color: Colors.black),
+                             )
+                           ],
+                         ):
+
+                         ListView.builder(
+                          scrollDirection: Axis.vertical,
+                          itemCount: controller.coinList.length,
+                          itemBuilder: (context, index) {
+                            return SingleChildScrollView(
+                                child: CoinDesign(
+                                    symbol: controller.coinList[index].symbol,
+                                    name: controller.coinList[index].name,
+                                    image: controller.coinList[index].image,
+                                    currentPrice: controller.coinList[index].currentPrice,
+                                    priceChangePercentage24H: controller.coinList[index].priceChangePercentage24H));
+                          },
+                        ),
+                      )),
+                ),
               ],
             ),
           ),
