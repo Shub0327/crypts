@@ -9,6 +9,8 @@ class BroughtcoinData{
   String? name;
   String? quantity;
 
+
+
   BroughtcoinData({this.name, this.quantity});
   BroughtcoinData.fromJson(Map<dynamic,dynamic> json){
     name=json["name"];

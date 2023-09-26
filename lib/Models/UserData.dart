@@ -1,6 +1,6 @@
 class UserData {
   final String uid;
-  final String displayName;
+  late final String displayName;
   final String email;
   final String wallet;
 

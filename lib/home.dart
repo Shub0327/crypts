@@ -1,12 +1,17 @@
-import 'package:crypts/Models/UserData.dart';
+import 'dart:async';
+
 import 'package:crypts/Models/broughtCoin.dart';
+import 'package:crypts/authentication_repo.dart';
 import 'package:crypts/coinController.dart';
 import 'package:crypts/drawer_widget.dart';
+import 'package:crypts/logout.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:crypts/coindesign.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+
 
 class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
@@ -23,74 +28,6 @@ class _HomeState extends State<Home> {
 
   DatabaseReference dbref = FirebaseDatabase.instance.ref();
 
-  void retrieveData() {
-    final User? user = _auth.currentUser;
-    String uid = user!.uid;
-    dbref.child("Users").child(uid).onChildAdded.listen((data) {
-      BroughtcoinData broughtcoinData = BroughtcoinData.fromJson(data.snapshot.value as Map);
-      Broughtcoin broughtcoin = Broughtcoin(key: data.snapshot.key, broughtcoinData: broughtcoinData);
-      broughtcoinsList.add(broughtcoin);
-      setState(() {});
-    });
-  }
-
-  void addFunds() {
-    showDialog(
-        context: context,
-        builder: (context) {
-          return Dialog(
-            child: Container(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(helperText: "Enter Name"),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  TextField(
-                    controller: quantityController,
-                    decoration: const InputDecoration(helperText: "Enter Quantity"),
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  ElevatedButton(
-                      onPressed: () {
-                        Map<String, dynamic> data = {
-                          "name": nameController.text.toString(),
-                          "quantity": quantityController.text.toString()
-                        };
-
-                        final User? user = _auth.currentUser;
-                        String uid = user!.uid;
-                        dbref.child("Users").child(uid).push().set(data).then((value) => Navigator.of(context).pop());
-                       
-                      },
-                      child: const Text("Save"))
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-// Future<void> storeUserData(UserData userData) async {
-//   try {
-//     final DatabaseReference userRef = FirebaseDatabase.instance.reference().child('users').child(userData.uid);
-//
-//     await userRef.set({
-//       'displayName': userData.displayName,
-//       'email': userData.email,
-//       'wallet':initialAmount.toString(),
-//     });
-//   } catch (e) {
-//     print("Error storing user data: $e");
-//   }
-// }
 
   RxBool loading = true.obs;
   RxBool tloading = true.obs;
@@ -101,10 +38,14 @@ class _HomeState extends State<Home> {
 
   final _auth = FirebaseAuth.instance;
 
+
   @override
   initState() {
+
     print("initState Called");
+    checkFirstLogin();
     retrieveData();
+
   }
 
   @override
@@ -118,7 +59,7 @@ class _HomeState extends State<Home> {
             },
           ),
           appBar: AppBar(
-            leading: const Icon(Icons.menu),
+
             title: const Text('Crypts'),
             actions: [
               const Icon(Icons.favorite),
@@ -156,7 +97,31 @@ class _HomeState extends State<Home> {
               ],
             ),
           ),
-          drawer: DrawerWidget(),
+          drawer:
+
+
+          Drawer(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  DrawerHeader(child:
+                  Text("Settings"),
+                  decoration: BoxDecoration(
+                    color: Colors.purpleAccent
+                  ),
+                  ),
+                  ListTile(
+                    title: Text("Logout"),
+                    onTap: (){
+                      setState(() {
+                        AuthenticationRepo.instance.logout();
+                      });
+                    },
+                  ),
+                ],
+              ),
+          ),
+
           body: TabBarView(
             children: [
               Stack(
@@ -234,142 +199,144 @@ class _HomeState extends State<Home> {
               ),
               Stack(
                 children: <Widget>[
-                  Container(
-                    color: Colors.white24,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height,
-                    child: Column(
-                      children: [
-                        if (search.value)
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 20, 10, 0),
-                            child: TextField(
-                              decoration: const InputDecoration(
-                                // suffixIcon: Icon(Icons.dangerous),
-                                icon: Icon(Icons.search),
-                                labelText: "Search your coin here...",
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                                  borderSide: BorderSide(
-                                    color: Colors.purple,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                                  borderSide: BorderSide(color: Colors.purple),
-                                ),
-                              ),
-                              controller: editingController,
-                              onChanged: (query) {
-                                controller.searchCoins(query); // Call the search function
-                              },
-                            ),
-                          ),
-                        Expanded(
-                          child: SizedBox(
-                              height: MediaQuery.of(context).size.height,
-                              width: MediaQuery.of(context).size.width,
-                              child: Obx(
-                                () => controller.tloading.value
-                                    ? Column(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: const [
-                                          CircularProgressIndicator(),
-                                          SizedBox(
-                                            height: 20,
-                                          ),
-                                          Text(
-                                            "Please wait until trending coins are getting loaded",
-                                            style: TextStyle(color: Colors.black),
-                                          )
-                                        ],
-                                      )
-                                    : ListView.builder(
-                                        scrollDirection: Axis.vertical,
-                                        itemCount: controller.tredingList.length,
-                                        itemBuilder: (context, index) {
-                                          return SingleChildScrollView(
-                                              child: CoinDesign(
-                                                  symbol: controller.tredingList[index].symbol,
-                                                  name: controller.tredingList[index].name,
-                                                  image: controller.tredingList[index].thumb,
-                                                  currentPrice: controller.tredingList[index].priceBtc,
-                                                  priceChangePercentage24H:
-                                                      controller.tredingList[index].score.toDouble()));
-                                        },
-                                      ),
-                              )),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   color: Colors.white24,
+                  //   width: MediaQuery.of(context).size.width,
+                  //   height: MediaQuery.of(context).size.height,
+                  //   child: Column(
+                  //     children: [
+                  //       if (search.value)
+                  //         Padding(
+                  //           padding: const EdgeInsets.fromLTRB(20, 20, 10, 0),
+                  //           child: TextField(
+                  //             decoration: const InputDecoration(
+                  //               // suffixIcon: Icon(Icons.dangerous),
+                  //               icon: Icon(Icons.search),
+                  //               labelText: "Search your coin here...",
+                  //               enabledBorder: OutlineInputBorder(
+                  //                 borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  //                 borderSide: BorderSide(
+                  //                   color: Colors.purple,
+                  //                 ),
+                  //               ),
+                  //               focusedBorder: OutlineInputBorder(
+                  //                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                  //                 borderSide: BorderSide(color: Colors.purple),
+                  //               ),
+                  //             ),
+                  //             controller: editingController,
+                  //             onChanged: (query) {
+                  //               controller.searchCoins(query); // Call the search function
+                  //             },
+                  //           ),
+                  //         ),
+                  //       Expanded(
+                  //         child: SizedBox(
+                  //             height: MediaQuery.of(context).size.height,
+                  //             width: MediaQuery.of(context).size.width,
+                  //             child: Obx(
+                  //               () => controller.tloading.value
+                  //                   ? Column(
+                  //                       mainAxisAlignment: MainAxisAlignment.center,
+                  //                       children: const [
+                  //                         CircularProgressIndicator(),
+                  //                         SizedBox(
+                  //                           height: 20,
+                  //                         ),
+                  //                         Text(
+                  //                           "Please wait until trending coins are getting loaded",
+                  //                           style: TextStyle(color: Colors.black),
+                  //                         )
+                  //                       ],
+                  //                     )
+                  //                   : ListView.builder(
+                  //                       scrollDirection: Axis.vertical,
+                  //                       itemCount: controller.tredingList.length,
+                  //                       itemBuilder: (context, index) {
+                  //                         return SingleChildScrollView(
+                  //                             child: CoinDesign(
+                  //                                 symbol: controller.tredingList[index].symbol,
+                  //                                 name: controller.tredingList[index].name,
+                  //                                 image: controller.tredingList[index].thumb,
+                  //                                 currentPrice: controller.tredingList[index].priceBtc,
+                  //                                 priceChangePercentage24H:
+                  //                                     controller.tredingList[index].score.toDouble()));
+                  //                       },
+                  //                     ),
+                  //             )),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
-              Column(
-                children: [
-                  Container(
-                    color: Colors.blueGrey,
-                    width: MediaQuery.of(context).size.width,
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          Text(
-                            'Portfolio Value',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+              SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Container(
+                      color: Colors.blueGrey,
+                      width: MediaQuery.of(context).size.width,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            Text(
+                              'Portfolio Value',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Text(
-                            '\$${initialAmount.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: 15,
                             ),
-                          ),
-                          SizedBox(
-                            height: 30,
-                          ),
-                          Text(
-                            'Wallet Balance',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
+                            Text(
+                              '\$${initialAmount.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            '\$${initialAmount.toStringAsFixed(2)}',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 24.0,
-                              fontWeight: FontWeight.bold,
+                            SizedBox(
+                              height: 30,
                             ),
-                          ),
-                        ],
+                            Text(
+                              'Wallet Balance',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Text(
+                              '\$${initialAmount.toStringAsFixed(2)}',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 24.0,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SingleChildScrollView(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        children: [
-                          for (int i = 0; i < broughtcoinsList.length; i++) Widgetbroughtcoin(broughtcoinsList[i])
-                        ],
+                    SingleChildScrollView(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          children: [
+                            for (int i = 0; i < broughtcoinsList.length; i++) Widgetbroughtcoin(broughtcoinsList[i])
+                          ],
+                        ),
                       ),
-                    ),
-                  )
-                ],
+                    )
+                  ],
+                ),
               ),
             ],
           )),
@@ -394,4 +361,177 @@ class _HomeState extends State<Home> {
       ),
     );
   }
-}
+
+  void addFunds() {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(helperText: "Enter Name"),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  TextField(
+                    controller: quantityController,
+                    decoration: const InputDecoration(helperText: "Enter Quantity"),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  ElevatedButton(
+                      onPressed: () {
+                        final User? user = _auth.currentUser;
+                        String uid = user!.uid;
+
+                        // String? coinId = dbref.child("Users").child(uid).child("BroughtCoins").push().key;
+
+                        Map<String, dynamic> data = {
+                          "name": nameController.text.toString(),
+                          "quantity": quantityController.text.toString()
+                        };
+                        dbref.child("Users").child(uid).child("BroughtCoins").push().set(data).then((value) => Navigator.of(context).pop());
+
+
+                      },
+                      child: const Text("Save"))
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  void retrieveData() {
+    final User? user = _auth.currentUser;
+
+    if (user != null) {
+      String uid = user.uid;
+      // String? coinId = dbref.child("Users").child(uid).child("BroughtCoins").push().key;
+      dbref.child("Users").child(uid).child("BroughtCoins").onChildAdded.listen((data) {
+        BroughtcoinData broughtcoinData = BroughtcoinData.fromJson(data.snapshot.value as Map);
+        Broughtcoin broughtcoin = Broughtcoin(key: data.snapshot.key, broughtcoinData: broughtcoinData);
+
+        print("Helloooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        print(broughtcoin);
+        setState(() {
+           broughtcoinsList.add(broughtcoin);
+        });
+      });
+    }
+  }
+
+  bool isFirstLogin = true; // A flag to track first-time login
+
+  void checkFirstLogin() {
+
+    final User? user = _auth.currentUser;
+    if (user != null) {
+      String? uid = user.uid;
+
+      // Check if the user's data already exists in the database
+      dbref.child("Users").once().then((DatabaseEvent databaseEvent) {
+        if (databaseEvent.snapshot.value != null) {
+          Map<String, dynamic> userData = databaseEvent.snapshot.value as Map<String, dynamic>;
+
+          // Check if "displayName" exists and is not null in userData
+          if ( !userData.containsKey(uid) || userData["displayName"] == "") {
+            showEditProfileDialog(user);
+          }
+
+          // Check if "wallet" exists and is not null in userData
+          // if (userData.containsKey("wallet") && userData["wallet"] != null) {
+          //   String walletBalance = userData["wallet"];
+          //
+          //   // Set the walletBalance in the quantityController
+          //   quantityController.text = walletBalance;
+          // }
+          // Now, you can proceed with showing the edit profile dialog
+        }
+        // If "UserData" doesn't exist in the database, you can still show the edit profile dialog
+
+      }).catchError((error) {
+        // Handle error if data retrieval fails
+        print("Error retrieving UserData: $error");
+      });
+    }
+  }
+
+
+
+  void showEditProfileDialog(User user) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: InputDecoration(
+                    helperText: "Enter Display Name",
+                    hintText: user.displayName ?? "", // Show current display name if available
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                TextField(
+                  controller: quantityController,
+                  decoration: InputDecoration(
+                    helperText: "Enter Wallet Balance",
+                    hintText: isFirstLogin ? "" : initialAmount.toString(), // Show empty or current wallet balance
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    String displayName = nameController.text.toString();
+                    String walletBalance = quantityController.text.toString();
+
+                    // Update user data in the database
+                    updateUserProfile(user, displayName, walletBalance);
+
+                    // Close the dialog
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text("Save"),
+                )
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void updateUserProfile(User user, String displayName, String walletBalance) {
+      // Update wallet balance in the database
+      final String uid = user.uid;
+      Map<String, dynamic> userData = {
+        "displayName": displayName,
+        "email": user.email,
+        "wallet": walletBalance,
+      };
+
+      dbref.child("Users").child(uid).child("UserData").set(userData).then((value) {
+        // After updating, set isFirstLogin to false
+        isFirstLogin = false;
+      }).catchError((error) {
+        // Handle error if user data storage fails
+        print("Error storing user data: $error");
+      });
+    }
+  }
