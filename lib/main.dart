@@ -17,9 +17,9 @@ import 'firebase_options.dart';
 //   runApp(const MyApp());
 //   // currency();
 // }
-void main() {
+void main()async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(options:DefaultFirebaseOptions.currentPlatform).then((value) => Get.put(AuthenticationRepo()));
+  await Firebase.initializeApp(options:DefaultFirebaseOptions.currentPlatform).then((value) => Get.put(AuthenticationRepo()));
   runApp(const MyApp());
 }
 

@@ -18,6 +18,15 @@ class AuthenticationRepo extends GetxController {
     ever(firebaseUser, _setIntialScreen);
   }
 
+
+
+  String? getUidData() {
+    final User? user = _auth.currentUser;
+    String? uid = user?.uid;
+    return uid;
+    // here you write the codes to input the data into firestore
+  }
+
   _setIntialScreen(User? user) {
     user == null ? Get.offAll(() => Signup()) : Get.offAll(() => Home());
   }

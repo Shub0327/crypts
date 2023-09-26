@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crypts/trendingmodel.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:crypts/coinmodel.dart';
@@ -8,13 +9,18 @@ import 'package:crypts/coinmodel.dart';
 class CoinController extends GetxController {
 
    RxList<Coinmodel>coinList = <Coinmodel>[].obs;
+   RxList<Trendmodel>tredingList = <Trendmodel>[].obs;
+
    RxBool loading=true.obs;
+   RxBool tloading=true.obs;
 
    @override
    void onInit() {
       super.onInit();
       fetchCoin();
       Timer.periodic(const Duration(seconds: 10), (timer) => fetchCoin());
+      tredingCoin();
+      Timer.periodic(const Duration(seconds: 10), (timer) => tredingCoin());
    }
 
    // Inside your CoinController class
@@ -30,6 +36,18 @@ class CoinController extends GetxController {
    }
 
 
+   tredingCoin()async{
+      try{
+         print("<<<<<<<< -----------------------------Sucess---------------------------- >>>>>>>>>");
+         var response= await http.get(Uri.parse('https://api.coingecko.com/api/v3/search/trending/'));
+         List<Trendmodel> tcoin= trendmodelFromJson(response.body);
+         tredingList.value=tcoin;
+      }
+
+          finally{
+         tloading(false);
+          }
+   }
 
    fetchCoin() async {
       try {

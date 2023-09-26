@@ -48,6 +48,7 @@ class DefaultFirebaseOptions {
     appId: '1:1015715869783:web:844b633f62873015679f12',
     messagingSenderId: '1015715869783',
     projectId: 'crypts-cc506',
+    databaseURL: 'https://crypts-cc506-default-rtdb.firebaseio.com',
     authDomain: 'crypts-cc506.firebaseapp.com',
     storageBucket: 'crypts-cc506.appspot.com',
   );
@@ -57,6 +58,7 @@ class DefaultFirebaseOptions {
     appId: '1:1015715869783:android:2729f49fc7b5144d679f12',
     messagingSenderId: '1015715869783',
     projectId: 'crypts-cc506',
+    databaseURL: 'https://crypts-cc506-default-rtdb.firebaseio.com',
     storageBucket: 'crypts-cc506.appspot.com',
   );
 
