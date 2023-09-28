@@ -1,27 +1,31 @@
 import 'package:flutter/material.dart';
 
-class CoinDesign extends StatelessWidget {
-  CoinDesign({
+class TrendDesign extends StatelessWidget {
+  TrendDesign({
     Key? key,
     required this.symbol,
+    required this.coinId,
     required this.name,
-    required this.image,
-    required this.currentPrice,
-    required this.priceChangePercentage24H,
+    required this.small,
+    required this.priceBtc,
+    required this.score,
+    required this.marketCapRank,
   }) : super(key: key);
 
+  double coinId;
   String symbol;
   String name;
-  String image;
-  double currentPrice;
-  double priceChangePercentage24H;
+  String small;
+  double priceBtc;
+  double marketCapRank;
+  double score;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(0),
       child: Container(
-        height: MediaQuery.of(context).size.height / 10,
+        height: MediaQuery.of(context).size.height / 9,
 
         decoration: const BoxDecoration(
           color: Colors.transparent,
@@ -30,6 +34,7 @@ class CoinDesign extends StatelessWidget {
         ),
         child: Row(
           children: [
+
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: Container(
@@ -41,7 +46,7 @@ class CoinDesign extends StatelessWidget {
                 width: 60,
                 child: Padding(
                   padding: const EdgeInsets.all(10.0),
-                  child: Image.network(image),
+                  child: Image.network(small),
                 ),
               ),
             ),
@@ -50,6 +55,18 @@ class CoinDesign extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      'ID-$coinId',
+                      style: const TextStyle(
+                        color: Color(
+                            0xff000000),
+                        fontSize: 10,
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  ),
                   FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text(
@@ -80,24 +97,27 @@ class CoinDesign extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    currentPrice.toDouble() < 0
-                        ? currentPrice.toDouble().abs().toString()
-                        : '\$ ${currentPrice.toDouble()}',
+                     '#${score.toDouble()+1}',
+                    style: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    priceBtc.toDouble() < 0
+                        ? priceBtc.toDouble().toStringAsFixed(10)
+                        : '${priceBtc.toDouble().toStringAsFixed(10)} BTC',
                     style: TextStyle(
-                      color: currentPrice.toDouble() < 0 ? Colors.red : Colors.black,
+                      color: priceBtc.toDouble() < 0 ? Colors.red : Colors.green,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 2,),
                   Text(
-                    priceChangePercentage24H.toDouble() < 0
-                        ? '${priceChangePercentage24H.toDouble()}%'
-                        : '+${priceChangePercentage24H.toDouble()}%',
-                    style: TextStyle(
-                      color: priceChangePercentage24H.toDouble() < 0
-                          ? Colors.red
-                          : Colors.green,
+                   'Market Rank ${marketCapRank.toDouble()}',
+                    style: const TextStyle(
+                      color: Colors.black,
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
                     ),
@@ -109,6 +129,6 @@ class CoinDesign extends StatelessWidget {
         ),
       ),
     );
-   
+
   }
 }

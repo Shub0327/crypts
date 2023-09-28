@@ -1,9 +1,8 @@
 import 'package:crypts/authentication_repo.dart';
-import 'package:crypts/currencies.dart';
+
 import 'package:crypts/home.dart';
 import 'package:crypts/logout.dart';
-import 'package:crypts/signup.dart';
-import 'package:crypts/welcome.dart';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
